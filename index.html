@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>合鍵</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08090b;
+      --paper: rgba(19, 22, 27, 0.86);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f3f0e8;
+      --muted: #a8a39a;
+      --accent: #c9a76a;
+      --danger: #b84444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", serif;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(120, 126, 133, 0.2), transparent 34rem),
+        linear-gradient(180deg, #101217 0%, var(--bg) 58%, #020203 100%);
+      color: var(--text);
+    }
+
+    .scene {
+      position: relative;
+      display: grid;
+      min-height: 100vh;
+      place-items: end center;
+      padding: 5vh 18px 24px;
+    }
+
+    .door {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,0.08) 48.15% 48.45%, transparent 48.6%),
+        radial-gradient(circle at 57% 47%, rgba(207, 176, 113, 0.42) 0 4px, transparent 5px),
+        linear-gradient(90deg, rgba(0,0,0,0.7), transparent 24%, transparent 75%, rgba(0,0,0,0.8)),
+        repeating-linear-gradient(90deg, #181510 0 18px, #14110d 18px 21px, #1f1a13 21px 44px);
+      filter: saturate(0.8);
+    }
+
+    .door::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 54%, transparent 0 14rem, rgba(0,0,0,0.52) 24rem),
+        linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.76));
+    }
+
+    .title {
+      position: absolute;
+      top: 8vh;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      font-size: clamp(3.8rem, 12vw, 9rem);
+      font-weight: 500;
+      letter-spacing: 0;
+      text-shadow: 0 18px 32px rgba(0,0,0,0.78);
+      writing-mode: vertical-rl;
+    }
+
+    .panel {
+      position: relative;
+      width: min(920px, 100%);
+      min-height: 218px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.58);
+      backdrop-filter: blur(12px);
+    }
+
+    .name {
+      display: inline-flex;
+      min-width: 8rem;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      color: var(--accent);
+      font-family: system-ui, sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0;
+    }
+
+    .text {
+      min-height: 106px;
+      padding: 24px 28px 12px;
+      font-size: clamp(1.05rem, 2.2vw, 1.38rem);
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+      padding: 16px 18px 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    button {
+      min-width: 116px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      cursor: pointer;
+      font: 600 0.92rem system-ui, sans-serif;
+    }
+
+    button:hover {
+      border-color: rgba(201,167,106,0.72);
+      color: #fff3d5;
+    }
+
+    button.primary {
+      border-color: rgba(201,167,106,0.72);
+      background: rgba(201,167,106,0.22);
+    }
+
+    .meter {
+      position: absolute;
+      right: 22px;
+      top: 14px;
+      color: var(--muted);
+      font: 0.8rem system-ui, sans-serif;
+    }
+
+    .flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: rgba(184, 68, 68, 0);
+      transition: background 320ms ease;
+    }
+
+    .flash.on {
+      background: rgba(184, 68, 68, 0.28);
+      transition-duration: 60ms;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        overflow: auto;
+      }
+
+      .scene {
+        min-height: 100svh;
+        padding: 18vh 12px 14px;
+      }
+
+      .title {
+        top: 3vh;
+        font-size: 3.4rem;
+        writing-mode: horizontal-tb;
+      }
+
+      .panel {
+        min-height: 244px;
+      }
+
+      .text {
+        padding: 20px 18px 10px;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      button {
+        flex: 1 1 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene">
+    <div class="door" aria-hidden="true"></div>
+    <h1 class="title">合鍵</h1>
+    <section class="panel" aria-label="novel">
+      <div class="name" id="speaker">夜</div>
+      <div class="meter" id="meter">1 / 10</div>
+      <div class="text" id="line"></div>
+      <div class="controls">
+        <button id="sound">音を許可</button>
+        <button id="back">戻る</button>
+        <button class="primary" id="next">進む</button>
+      </div>
+    </section>
+  </main>
+  <div class="flash" id="flash"></div>
+
+  <audio id="sting" preload="auto" src="assets/se_sting.mp3"></audio>
+  <audio id="chain" preload="auto" src="assets/se_doorchain.mp3"></audio>
+
+  <script>
+    const script = [
+      ["夜", "午前二時十七分。\n鍵穴を探る音で、私は目を覚ました。"],
+      ["私", "最初は隣の部屋だと思った。\nでも音は、玄関の向こうからしている。"],
+      ["玄関", "かり、かり。\n古い鍵が、合わない形のまま回されようとしている。"],
+      ["私", "息を止める。\nチェーンは掛けた。鍵も閉めた。なのに。"],
+      ["向こう側", "「開けて」"],
+      ["私", "声は私のものだった。\n録音みたいに平坦で、でも確かに私の声だった。"],
+      ["玄関", "ドアが、ほんの指一本ぶん開いた。"],
+      ["音", "じゃらり、とチェーンが張りつめる。"],
+      ["向こう側", "「それ、私の合鍵だから」"],
+      ["私", "鍵穴の中で、何かが笑った。"]
+    ];
+
+    const line = document.getElementById("line");
+    const speaker = document.getElementById("speaker");
+    const meter = document.getElementById("meter");
+    const flash = document.getElementById("flash");
+    const sting = document.getElementById("sting");
+    const chain = document.getElementById("chain");
+    let index = 0;
+    let soundReady = false;
+
+    function pulse() {
+      flash.classList.add("on");
+      setTimeout(() => flash.classList.remove("on"), 70);
+    }
+
+    function playCue() {
+      if (!soundReady) return;
+      if (index === 2 || index === 9) {
+        sting.currentTime = 0;
+        sting.play().catch(() => {});
+        pulse();
+      }
+      if (index === 7) {
+        chain.currentTime = 0;
+        chain.play().catch(() => {});
+        pulse();
+      }
+    }
+
+    function render() {
+      const [name, text] = script[index];
+      speaker.textContent = name;
+      line.textContent = text;
+      meter.textContent = `${index + 1} / ${script.length}`;
+      playCue();
+    }
+
+    document.getElementById("sound").addEventListener("click", () => {
+      soundReady = true;
+      sting.volume = 0.55;
+      chain.volume = 0.7;
+      document.getElementById("sound").textContent = "音あり";
+      playCue();
+    });
+
+    document.getElementById("next").addEventListener("click", () => {
+      index = Math.min(script.length - 1, index + 1);
+      render();
+    });
+
+    document.getElementById("back").addEventListener("click", () => {
+      index = Math.max(0, index - 1);
+      render();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "Enter" || event.key === " ") {
+        index = Math.min(script.length - 1, index + 1);
+        render();
+      }
+      if (event.key === "ArrowLeft") {
+        index = Math.max(0, index - 1);
+        render();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
